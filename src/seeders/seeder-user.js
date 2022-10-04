@@ -11,8 +11,7 @@ module.exports = {
       lastName: 'Doe',
       address: 'USA',
       gender: '1',
-      typeRole: 'ROLE',
-      keyRole: 'R1',
+      roleId: 'ROLE',
       createdAt: new Date(),
       updatedAt: new Date()
     }]);

@@ -5,9 +5,10 @@ let router =express.Router();
 
 let initWebRoutes =(app) => {
     router.get('/', homeController.getHomePage)
-
     router.get('/about', homeController.getAboutPage);
-    router.get('/user', homeController.getUserPage);
+    router.get('/crud', homeController.getCrudPage);
+
+    router.post('/post-crud', homeController.postCrudPage);
 
       
       
