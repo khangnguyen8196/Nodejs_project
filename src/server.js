@@ -24,5 +24,5 @@ let port =process.env.PORT || 3000;
 //Port === undefined => port =3000
 app.listen(port, ()=>{
     //callback
-    console.log("backend Nodejs is runing on the port " + port)
+    console.log("backend Nodejs is running on the port " + port)
 })
