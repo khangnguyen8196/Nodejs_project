@@ -114,10 +114,10 @@ let createNewUser = (data) => {
                 if (check === true) {
                     resolve({
                         errCode:1,
-                        message:'your email is already in used, please try another email'
+                        errMessage:'your email is already in used, please try another email'
                     });
-                }
-                let hashPassWordFromBcrypt = await hashUserPassword(data.password);
+                }else {
+                    let hashPassWordFromBcrypt = await hashUserPassword(data.password);
                 await db.User.create({
                     email: data.email,
                     password: hashPassWordFromBcrypt,
@@ -127,11 +127,12 @@ let createNewUser = (data) => {
                     phoneNumber: data.phoneNumber,
                     gender: data.gender === '1' ? true : false,
                     roleId: data.roleId,
-            })
+                })
                 resolve({
                     errCode:0,
                     message:'OK'
                 });
+                }          
     
     }catch(e){
         reject(e);
@@ -204,10 +205,34 @@ let updateUserData = (data) => {
         }
     })
 }
+
+let getAllCodeService = (typeInput) => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            if(!typeInput){
+                resolve({
+                    errCode:1,
+                    errMessage:'Missing required parameter!',
+                })
+            }else{
+                let res ={};
+                let allcode = await db.Allcode.findAll({
+                    where: {type: typeInput},
+                });
+                res.errCode = 0;
+                res.data = allcode
+                resolve(res)
+            }
+        }catch (e) {
+            reject(e)
+        }
+    })
+}
 module.exports ={
     handleUserLogin:handleUserLogin,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
     deleteUser: deleteUser,
     updateUserData: updateUserData,
+    getAllCodeService: getAllCodeService,
 }
