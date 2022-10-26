@@ -150,9 +150,9 @@ let bulkCreateSchedule = (data) => {
                 })
 
                 // convert date
-                if(existing && existing.length >0){
+                if(existing && existing.length > 0){
                     existing = existing.map(item => {
-                        item.date =new Date(item.date).getTime();
+                        item.date = new Date(item.date).getTime();
                         return item;
                     })
                 }
@@ -175,10 +175,38 @@ let bulkCreateSchedule = (data) => {
         }
     })
 }
+
+let getSchedulebyDate = (doctorId, date) => {
+    return new Promise(async(resolve, reject) => {
+        try {
+           if(!doctorId || !date){
+            resolve({
+                errCode:1,
+                errMessage:'Missing required parameters!'
+            })
+           }else {
+                let dataSchedule = await db.Schedule.findAll({
+                    where:{
+                        doctorId: doctorId,
+                        date: date
+                    }
+                })
+                if(!dataSchedule) dataSchedule =[];
+                resolve({
+                    errCode:0,
+                    data:dataSchedule
+                })
+            }
+        }catch (e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     getTopDoctorHome: getTopDoctorHome,
     getAllDoctors: getAllDoctors,
     saveDetailInforDoctor: saveDetailInforDoctor,
     getDetailDoctorById: getDetailDoctorById,
     bulkCreateSchedule: bulkCreateSchedule,
+    getSchedulebyDate: getSchedulebyDate,
 }
