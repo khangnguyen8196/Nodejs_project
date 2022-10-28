@@ -52,13 +52,25 @@ let getAllDoctors = () => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async(resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentHTML 
-                || !inputData.contentMarkdown || !inputData.action){
+            if (!inputData.doctorId 
+                || !inputData.contentHTML 
+                || !inputData.contentMarkdown 
+                || !inputData.action
+                
+                || !inputData.selectPrice
+                || !inputData.selectPayment
+                || !inputData.selectProvince
+                || !inputData.nameClinic
+                || !inputData.addressClinic
+                || !inputData.note
+                ){
                 resolve({
                     errCode:1,
                     errMessage:'Missing parameter'
                 })
             } else {
+
+                // upsert to Markdown
                 if(inputData.action ==='CREATE'){
                     await db.Markdown.create({
                         contentHTML: inputData.contentHTML,
@@ -77,6 +89,36 @@ let saveDetailInforDoctor = (inputData) => {
                         doctorMarkdown.description = inputData.description;
                         await doctorMarkdown.save();
                     }
+                }
+
+                // upsert to Doctor_Infor table
+                let doctorInfor = await db.Doctor_Infor.findOne({
+                    where:{
+                        doctorId:inputData.doctorId,
+                    },
+                    raw:false
+                })
+                if (doctorInfor){
+                    //update
+                    doctorInfor.doctorId = inputData.doctorId;
+                    doctorInfor.priceId = inputData.selectPrice;
+                    doctorInfor.provinceId = inputData.selectProvince;
+                    doctorInfor.paymentId = inputData.selectPayment;
+                    doctorInfor.nameClinic = inputData.nameClinic;
+                    doctorInfor.addressClinic = inputData.addressClinic;
+                    doctorInfor.note = inputData.note;
+                    await doctorInfor.save();
+                } else {
+                    // create
+                    await db.Doctor_Infor.create({
+                        doctorId:inputData.doctorId,
+                        priceId : inputData.selectPrice,
+                        provinceId : inputData.selectProvince,
+                        paymentId : inputData.selectPayment,
+                        nameClinic : inputData.nameClinic,
+                        addressClinic : inputData.addressClinic,
+                        note : inputData.note,
+                    })
                 }
                 
                 resolve({
@@ -106,7 +148,20 @@ let getDetailDoctorById = (inputId) => {
                     },
                     include: [
                         { model: db.Markdown , attributes: ['description', 'contentHTML', 'contentMarkdown']},
-                        { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi']}
+                        { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi']},
+
+                        { model: db.Doctor_Infor , 
+                            attributes: {
+                                exclude: ['id','doctorId']
+                            },
+                            include : [
+                                { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi']},
+                                { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi']},
+                                { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi']},
+                            ]
+                        
+                        },
+
                     ],
                     raw:false,
                     nest: true
