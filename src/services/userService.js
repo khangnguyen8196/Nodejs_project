@@ -107,7 +107,7 @@ let getAllUsers = (userId) => {
 }
 
 let createNewUser = (data) => {
-    return new Promise(async(resolve, reject) => {
+    return new Promise ( async (resolve, reject) => {
         try 
             {   //check email is exist ???
                 let check = await checkUserEmail(data.email);
@@ -116,7 +116,8 @@ let createNewUser = (data) => {
                         errCode:1,
                         errMessage:'your email is already in used, please try another email'
                     });
-                }else {
+                } else {
+
                     let hashPassWordFromBcrypt = await hashUserPassword(data.password);
                     await db.User.create({
                     email: data.email,
@@ -129,22 +130,22 @@ let createNewUser = (data) => {
                     roleId: data.roleId,
                     positionId: data.positionId,
                     image: data.avatar
-                })
-                resolve({
-                    errCode:0,
-                    message:'OK'
-                });
-                }          
+                    })
+                    resolve({
+                        errCode:0,
+                        message:'OK'
+                    });
+                }   
     
-    }catch(e){
-        reject(e);
-    }
+            } catch (e){
+                reject(e);
+            }
     })
 }
 
 let deleteUser = (userId) => {
     return new Promise(async(resolve, reject) => {
-        try{
+        try {
             let foundUser = await db.User.findOne({
                 where:{id : userId},
             })
@@ -180,6 +181,7 @@ let updateUserData = (data) => {
             }
             let user = await db.User.findOne({
                 where: { id: data.id },
+                raw:false
 
             })
             if (user) {
@@ -193,9 +195,8 @@ let updateUserData = (data) => {
                 if (data.avatar){
                     user.image = data.avatar;
                 }
-
                 await user.save();
-                
+            
                 resolve({
                     errCode:0,
                     message:'Update user succeeds!'

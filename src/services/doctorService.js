@@ -49,24 +49,32 @@ let getAllDoctors = () => {
     })
 }
 
+let checkRequiredFields =(inputData)=> {
+    let arrFileds =['doctorId', 'contentMarkdown', 'contentHTML', 'action','selectedPrice',
+     'selectedPayment', 'selectedProvince', 'nameClinic', 'addressClinic', 'note', 'specialtyId']
+    let isValid =true;
+    let element =''
+    for (let i=0; i<arrFileds.length; i++) {
+        if (!inputData[arrFileds[i]]){
+            isValid = false;
+            element = arrFileds[i]
+            break;
+        }
+    }
+    return {
+        isValid:isValid,
+        element:element,
+    }
+}
+
+
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async(resolve, reject) => {
-        try {
-            if (!inputData.doctorId 
-                || !inputData.contentHTML 
-                || !inputData.contentMarkdown 
-                || !inputData.action
-                
-                || !inputData.selectPrice
-                || !inputData.selectPayment
-                || !inputData.selectProvince
-                || !inputData.nameClinic
-                || !inputData.addressClinic
-                || !inputData.note
-                ){
+        try {   let checkObj = checkRequiredFields(inputData);
+                if(checkObj.isValid === false){
                 resolve({
                     errCode:1,
-                    errMessage:'Missing parameter'
+                    errMessage:`Missing parameter:${checkObj.element}`
                 })
             } else {
 
@@ -101,23 +109,27 @@ let saveDetailInforDoctor = (inputData) => {
                 if (doctorInfor){
                     //update
                     doctorInfor.doctorId = inputData.doctorId;
-                    doctorInfor.priceId = inputData.selectPrice;
-                    doctorInfor.provinceId = inputData.selectProvince;
-                    doctorInfor.paymentId = inputData.selectPayment;
+                    doctorInfor.priceId = inputData.selectedPrice;
+                    doctorInfor.provinceId = inputData.selectedProvince;
+                    doctorInfor.paymentId = inputData.selectedPayment;
                     doctorInfor.nameClinic = inputData.nameClinic;
                     doctorInfor.addressClinic = inputData.addressClinic;
                     doctorInfor.note = inputData.note;
+                    doctorInfor.specialtyId = inputData.specialtyId;
+                    doctorInfor.clinicId = inputData.clinicId;
                     await doctorInfor.save();
                 } else {
                     // create
                     await db.Doctor_Infor.create({
                         doctorId:inputData.doctorId,
-                        priceId : inputData.selectPrice,
-                        provinceId : inputData.selectProvince,
-                        paymentId : inputData.selectPayment,
+                        priceId : inputData.selectedPrice,
+                        provinceId : inputData.selectedProvince,
+                        paymentId : inputData.selectedPayment,
                         nameClinic : inputData.nameClinic,
                         addressClinic : inputData.addressClinic,
                         note : inputData.note,
+                        specialtyId: inputData.specialtyId,
+                        clinicId : inputData.clinicId
                     })
                 }
                 
@@ -156,8 +168,12 @@ let getDetailDoctorById = (inputId) => {
                             },
                             include : [
                                 { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi']},
+
                                 { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi']},
+
                                 { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi']},
+
+                                // { model: db.Allcode, as: 'specialtyTypeData', attributes: ['valueEn', 'valueVi']},
                             ]
                         
                         },
